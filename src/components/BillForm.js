@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react'; // ✅ Added useState
 import { Box, Grid, TextField, Typography, MenuItem } from '@mui/material';
 import apiService from '../service/apiService';
 import { useNotification } from './NotificationProvider';
@@ -69,7 +69,7 @@ const billFormFields = [
     {
         section: 'Additional Details', fields: [
             { name: 'name', label: 'Name' },
-            { name: 'billNo', label: 'Bill No' },
+            { name: 'billNo', label: 'Bill No', disabled: true }, // ✅ AUTO-GENERATED
             { name: 'date', label: 'Date' },
             { name: 'stNo', label: 'ST No' },
             { name: 'chNo', label: 'CH No' },
@@ -83,6 +83,34 @@ const billFormFields = [
 const BillForm = ({ form, setForm, errors, setErrors, isSubmitting, setIsSubmitting, editingId, handleClose, partyRows, setBillRows }) => {
 
     const { showNotification } = useNotification();
+    
+    // ✅ STATE TO TRACK IF BILL NO IS GENERATED
+    const [billNoGenerated, setBillNoGenerated] = useState(false);
+
+    // ✅ Auto-generate Bill number (if new)
+    useEffect(() => {
+        if (!editingId && !billNoGenerated) {
+            setBillNoGenerated(true); // Prevent multiple calls
+            apiService.get('/bill')
+                .then(response => {
+                    const billRecords = Array.isArray(response.data) ? response.data : response;
+                    const latestBillNo = billRecords
+                        .map(r => parseInt(r.billNo, 10))
+                        .filter(n => !isNaN(n))
+                        .sort((a, b) => b - a)[0] || 0;
+                    const nextBillNo = (latestBillNo + 1).toString().padStart(4, '0');
+                    
+                    // ✅ ENSURE IT'S SET IN FORM
+                    setForm(prev => ({ ...prev, billNo: nextBillNo }));
+                    console.log('✅ Generated Bill No:', nextBillNo); // Debug
+                })
+                .catch(error => {
+                    console.error('Failed to generate Bill No:', error);
+                    showNotification('Failed to generate Bill No', 'error');
+                    setBillNoGenerated(false);
+                });
+        }
+    }, [editingId, setForm, showNotification, billNoGenerated]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -94,6 +122,12 @@ const BillForm = ({ form, setForm, errors, setErrors, isSubmitting, setIsSubmitt
         if (!form.consigneeName) newErrors.consigneeName = "Consignee Name is required";
         if (!form.grandTotal) newErrors.grandTotal = "Grand Total is required";
         else if (isNaN(form.grandTotal) || Number(form.grandTotal) <= 0) newErrors.grandTotal = "Grand Total must be a positive number";
+        
+        // ✅ VALIDATE BILL NO FOR NEW RECORDS
+        if (!editingId && !form.billNo) {
+            newErrors.billNo = "Bill No is required";
+        }
+        
         if (form.panNo && !/^[A-Z]{5}\d{4}[A-Z]{1}$/.test(form.panNo)) newErrors.panNo = "PAN No must be 10 characters (e.g., AAAAA9999A)";
         if (form.gstinNo && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.gstinNo)) newErrors.gstinNo = "GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
         if (form.consignorGSTIN && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.consignorGSTIN)) newErrors.consignorGSTIN = "Consignor GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
@@ -136,7 +170,11 @@ const BillForm = ({ form, setForm, errors, setErrors, isSubmitting, setIsSubmitt
         if (isSubmitting) return;
         setIsSubmitting(true);
         const endpoint = '/bill';
+        
+        // ✅ ENSURE BILL NO IS IN PAYLOAD
         const payload = { ...form };
+        console.log('🚚 PAYLOAD TO BACKEND:', payload); // Debug - Check Bill No here
+        
         try {
             let response;
             if (editingId) {
@@ -205,10 +243,8 @@ const BillForm = ({ form, setForm, errors, setErrors, isSubmitting, setIsSubmitt
                                                 sx={{
                                                     '& .MuiInputBase-root': {
                                                         borderRadius: '8px', backgroundColor: '#ffffff', fontSize: '1rem',
-                                                        height: '56px', // Match height with other TextFields
+                                                        height: '56px',
                                                         padding: '0 14px',
-                                                            width:'121px',
-
                                                     },
                                                     '& .MuiOutlinedInput-notchedOutline': { borderColor: '#d1d5db' },
                                                     '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#6b7280' },
@@ -216,7 +252,7 @@ const BillForm = ({ form, setForm, errors, setErrors, isSubmitting, setIsSubmitt
                                                     '& .MuiInputLabel-root': { color: '#6b7280' },
                                                     '& .MuiInputLabel-root.Mui-focused': { color: '#10b981' },
                                                     '& .MuiFormHelperText-root': { color: '#6b7280' },
-                                                    '& .MuiSelect-select': { padding: '16.5px 14px' }, // Align padding with TextField
+                                                    '& .MuiSelect-select': { padding: '16.5px 14px' },
                                                     minWidth: '100%',
                                                 }}
                                             >
@@ -232,10 +268,18 @@ const BillForm = ({ form, setForm, errors, setErrors, isSubmitting, setIsSubmitt
                                                 onChange={handleChange}
                                                 fullWidth
                                                 required={field.required}
+                                                disabled={field.disabled}
                                                 error={!!errors[field.name]}
                                                 helperText={errors[field.name]}
                                                 sx={{
-                                                    '& .MuiInputBase-root': { borderRadius: '8px', backgroundColor: '#ffffff' },
+                                                    '& .MuiInputBase-root': { 
+                                                        borderRadius: '8px', 
+                                                        backgroundColor: '#ffffff',
+                                                        '&.Mui-disabled': {
+                                                            backgroundColor: '#f9fafb',
+                                                            WebkitTextFillColor: '#6b7280'
+                                                        }
+                                                    },
                                                     '& .MuiOutlinedInput-notchedOutline': { borderColor: '#d1d5db' },
                                                     '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#6b7280' },
                                                     '& .Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#10b981' },
@@ -255,7 +299,5 @@ const BillForm = ({ form, setForm, errors, setErrors, isSubmitting, setIsSubmitt
         </Box>
     );
 };
-
-
 
 export default BillForm;

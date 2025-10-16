@@ -18,14 +18,14 @@ import ganesh from '../images/logo.png';
 import sign from '../images/Sign.png'
 
 const initialBillFormState = {
-    truckNo: '', from: '', to: '', deliveryAt: '', panNo: '', gstinNo: '',
+    truckNo: '', from: '', to: '', deliveryAt: '', panNo: '', gstinNo: '',chno:"",
     consignorName: '', consignorAddress: '', consignorGSTIN: '',
     consigneeName: '', consigneeAddress: '', consigneeGSTIN: '',
     partyDesc: '', valueOfGoods: '', invoiceChallan: '', consignmentNoteNo: '', consignmentDate: '',
     bankName: '', bankAcNo: '', ifscCode: '', branch: '',
     actualCharge: '', biltyCharges: '', grandTotal: '',
     name: '', billNo: '', date: '', stNo: '', chNo: '', lrNo: '', amount: '', total: '',
-    partys: '', weight: '', description: '', gstNo: '', selectedPartyId: ''
+    partys: '',  description: '', gstNo: '', selectedPartyId: '', selectedLrId: ''
 };
 
 const initialLRFormState = {
@@ -42,11 +42,13 @@ const initialpartyFormState = {
 const billFormFields = [
     {
         section: 'Truck Information', fields: [
-        { name: 'selectedPartyId', label: 'Select Party', type: 'select', required: true },
+            { name: 'selectedPartyId', label: 'Select Party', type: 'select', required: false },
+            { name: 'selectedLrId', label: 'Select LR', type: 'select', required: true },
             { name: 'truckNo', label: 'Truck No', required: true },
             { name: 'from', label: 'From', required: true },
             { name: 'to', label: 'To', required: true },
             { name: 'deliveryAt', label: 'Delivery At' },
+            { name: 'date', label: 'Date' },
             { name: 'panNo', label: 'PAN No' },
             { name: 'gstinNo', label: 'GSTIN No' }
         ]
@@ -58,20 +60,19 @@ const billFormFields = [
             { name: 'consignorGSTIN', label: 'GSTIN' }
         ]
     },
-    {
-        section: 'Consignee Details', fields: [
-            { name: 'consigneeName', label: 'Name', required: true },
-            { name: 'consigneeAddress', label: 'Address' },
-            { name: 'consigneeGSTIN', label: 'GSTIN' }
-        ]
-    },
+    // {
+    //     section: 'Consignee Details', fields: [
+    //         { name: 'consigneeName', label: 'Name', required: true },
+    //         { name: 'consigneeAddress', label: 'Address' },
+    //         { name: 'consigneeGSTIN', label: 'GSTIN' }
+    //     ]
+    // },
     {
         section: 'Goods Details', fields: [
-            { name: 'partys', label: 'No. of Articles', required: true },
+            // { name: 'partys', label: 'No. of Articles', required: true },
             { name: 'description', label: 'Description', required: true },
-            { name: 'weight', label: 'Weight' },
             { name: 'valueOfGoods', label: 'Value of Goods' },
-            { name: 'invoiceChallan', label: 'Invoice/Challan' },
+            // { name: 'invoiceChallan', label: 'Invoice/Challan' },
             { name: 'consignmentDate', label: 'Consignment Date', required: true },
             { name: 'gstNo', label: 'GST No' },
         ]
@@ -88,19 +89,20 @@ const billFormFields = [
         section: 'Charges', fields: [
             { name: 'actualCharge', label: 'Actual Charge' },
             { name: 'biltyCharges', label: 'Bilty Charges' },
-            { name: 'grandTotal', label: 'Grand Total', required: true }
+            { name: 'grandTotal', label: 'Grand Total', required: true },
+            { name: 'IGSTCGST', label: 'IGST/CGST' },
+            { name: 'SGST', label: 'SGST' },
+
         ]
     },
     {
         section: 'Additional Details', fields: [
-            { name: 'name', label: 'Name' },
-            { name: 'billNo', label: 'Bill No' },
-            { name: 'date', label: 'Date' },
+            // { name: 'name', label: 'Name' },
+            // { name: 'billNo', label: 'Bill No', disabled: true }, // ✅ AUTO-GENERATED            
             { name: 'stNo', label: 'ST No' },
             { name: 'chNo', label: 'CH No' },
-            { name: 'lrNo', label: 'LR No' },
             { name: 'amount', label: 'Amount' },
-            { name: 'total', label: 'Total' }
+            // { name: 'total', label: 'Total' }
         ]
     }
 ];
@@ -123,19 +125,19 @@ const lrFormFields = [
             { name: 'consignorGSTIN', label: 'Consignor GSTIN' }
         ]
     },
-    {
-        section: 'Consignee Details', fields: [
-            { name: 'consigneeName', label: 'Consignee Name', required: true },
-            { name: 'consigneeAddress', label: 'Consignee Address' },
-            { name: 'consigneeGSTIN', label: 'Consignee GSTIN' }
-        ]
-    },
+    // {
+    //     section: 'Consignee Details', fields: [
+    //         { name: 'consigneeName', label: 'Consignee Name', required: true },
+    //         { name: 'consigneeAddress', label: 'Consignee Address' },
+    //         { name: 'consigneeGSTIN', label: 'Consignee GSTIN' }
+    //     ]
+    // },
     {
         section: 'Goods Details', fields: [
-            { name: 'partys', label: 'Partys', required: true },
+            // { name: 'partys', label: 'Partys', required: true },
             { name: 'description', label: 'Description', required: true },
-            { name: 'weight', label: 'Weight' },
-            { name: 'rate', label: 'Rate' },
+            // { name: 'weight', label: 'Weight' },
+            // { name: 'rate', label: 'Rate' },
             { name: 'totalFreight', label: 'Total Freight' },
             { name: 'valueOfGoods', label: 'Value of Goods' }
         ]
@@ -167,11 +169,12 @@ const partyFormFields = [
             { name: 'partyName', label: 'Party Name', required: true },
             { name: 'description', label: 'Description' },
             { name: 'createdBy', label: 'Created By' },
-            { name: 'image', label: 'Image URL' },
+            // { name: 'image', label: 'Image URL' },
             { name: 'accountNo', label: 'Account No' },
             { name: 'ifscCode', label: 'IFSC Code' },
             { name: 'branch', label: 'Branch' },
-            { name: 'gstNumber', label: 'GST Number' }
+            { name: 'gstNumber', label: 'GST Number' },
+            { name: 'Address', label: 'Address' },
         ]
     }
 ];
@@ -192,6 +195,7 @@ const Home = () => {
     const [printMode, setPrintMode] = useState(null);
     const [shouldPrint, setShouldPrint] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [billNoGenerated, setBillNoGenerated] = useState(false);
 
     const handleViewChange = (event, newView) => {
         if (newView) {
@@ -271,6 +275,29 @@ const Home = () => {
         img.onerror = () => console.error('Failed to preload image');
     }, []);
 
+    // ✅ ADD THIS ENTIRE useEffect
+    useEffect(() => {
+        if (view === 'bill' && !editingId && !billNoGenerated && open) {
+            setBillNoGenerated(true);
+            apiService.get('/bill')
+                .then(response => {
+                    const billRecords = Array.isArray(response.data) ? response.data : response;
+                    const latestBillNo = billRecords
+                        .map(r => parseInt(r.billNo, 10))
+                        .filter(n => !isNaN(n))
+                        .sort((a, b) => b - a)[0] || 0;
+                    const nextBillNo = (latestBillNo + 1).toString().padStart(4, '0');
+                    setForm(prev => ({ ...prev, billNo: nextBillNo }));
+                    console.log('✅ Generated Bill No:', nextBillNo);
+                })
+                .catch(error => {
+                    console.error('Failed to generate Bill No:', error);
+                    toast.error('Failed to generate Bill No');
+                    setBillNoGenerated(false);
+                });
+        }
+    }, [view, editingId, open, billNoGenerated]);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -330,34 +357,83 @@ const Home = () => {
     }, [printMode, shouldPrint, selectedBillRows, selectedLrRows, selectedpartyRows, billRows, lrRows, partyRows, view]);
 
     const handleOpen = () => {
-        setEditingId(null);
-        setForm(view === 'bill' ? initialBillFormState : view === 'lr' ? initialLRFormState : initialpartyFormState);
-        setErrors({});
-        setOpen(true);
-    };
+    setEditingId(null);
+    setForm(view === 'bill' ? initialBillFormState : view === 'lr' ? initialLRFormState : initialpartyFormState);
+    setErrors({});
+    setOpen(true);
+    if (view === 'bill') setBillNoGenerated(false); // ✅ ADD
+};
 
     const handleClose = () => {
-        setOpen(false);
-        setEditingId(null);
-        setForm(initialBillFormState);
-        setErrors({});
+    setOpen(false);
+    setEditingId(null);
+    setForm(initialBillFormState);
+    setErrors({});
+    setBillNoGenerated(false); // ✅ ADD
+};
+  const numberToWords = (num) => {
+    if (!num) return "";
+    const ones = [
+      "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+      "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+      "sixteen", "seventeen", "eighteen", "nineteen",
+    ];
+    const tens = [
+      "", "", "twenty", "thirty", "forty", "fifty",
+      "sixty", "seventy", "eighty", "ninety",
+    ];
+
+    const convert = (n) => {
+      if (n < 20) return ones[n];
+      if (n < 100)
+        return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
+      if (n < 1000)
+        return (
+          ones[Math.floor(n / 100)] +
+          " hundred" +
+          (n % 100 ? " " + convert(n % 100) : "")
+        );
+      if (n < 1000000)
+        return (
+          convert(Math.floor(n / 1000)) +
+          " thousand" +
+          (n % 1000 ? " " + convert(n % 1000) : "")
+        );
+      if (n < 1000000000)
+        return (
+          convert(Math.floor(n / 1000000)) +
+          " million" +
+          (n % 1000000 ? " " + convert(n % 1000000) : "")
+        );
+      return "number too large";
     };
 
+    return convert(parseInt(num)).trim();
+  };
     const handleEdit = (row, tableType) => {
-        if (!row || !row._id) {
-            console.error('Invalid row data for editing');
-            return;
-        }
-        setEditingId(row._id);
-        const formState = { ...row };
-        delete formState.__v;
-        delete formState._id;
-        delete formState.createdAt;
-        delete formState.updatedAt;
+    if (!row || !row._id) {
+        console.error('Invalid row data for editing');
+        return;
+    }
+    setEditingId(row._id);
+    setBillNoGenerated(true);
+    const formState = { ...row };
+    delete formState.__v;
+    delete formState._id;
+    delete formState.createdAt;
+    delete formState.updatedAt;
 
-        setForm(formState);
-        setOpen(true);
-    };
+    // Map lrNo to selectedLrId by finding the matching LR record
+    if (tableType === 'bill' && row.lrNo) {
+        const matchingLr = lrRows.find(lr => lr.lrNo === row.lrNo);
+        formState.selectedLrId = matchingLr ? matchingLr._id : '';
+    } else {
+        formState.selectedLrId = '';
+    }
+
+    setForm(formState);
+    setOpen(true);
+};
 
     const handlePrintDialogOpen = () => setPrintDialogOpen(true);
 
@@ -407,96 +483,68 @@ const Home = () => {
     };
 
     const validateForm = () => {
-        const newErrors = {};
+    const newErrors = {};
+    if (view === 'bill') {
+        if (!form.truckNo) newErrors.truckNo = "Truck No is required";
+        else if (!/^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/.test(form.truckNo)) newErrors.truckNo = "Truck No must be in format XX12XX1234 (e.g., MH12AB1234)";
 
-        if (view === 'bill') {
-            if (!form.truckNo) newErrors.truckNo = "Truck No is required";
-            else if (!/^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/.test(form.truckNo)) newErrors.truckNo = "Truck No must be in format XX12XX1234 (e.g., MH12AB1234)";
+        if (!form.from) newErrors.from = "From is required";
+        if (!form.to) newErrors.to = "To is required";
+        if (!form.consignorName) newErrors.consignorName = "Consignor Name is required";
+        // if (!form.consigneeName) newErrors.consigneeName = "Consignee Name is required";
 
-            if (!form.from) newErrors.from = "From is required";
-            if (!form.to) newErrors.to = "To is required";
-            if (!form.consignorName) newErrors.consignorName = "Consignor Name is required";
-            if (!form.consigneeName) newErrors.consigneeName = "Consignee Name is required";
+        if (!form.grandTotal) newErrors.grandTotal = "Grand Total is required";
+        else if (isNaN(form.grandTotal) || Number(form.grandTotal) <= 0) newErrors.grandTotal = "Grand Total must be a positive number";
 
-            if (!form.grandTotal) newErrors.grandTotal = "Grand Total is required";
-            else if (isNaN(form.grandTotal) || Number(form.grandTotal) <= 0) newErrors.grandTotal = "Grand Total must be a positive number";
+        if (form.panNo && !/^[A-Z]{5}\d{4}[A-Z]{1}$/.test(form.panNo)) newErrors.panNo = "PAN No must be 10 characters (e.g., AAAAA9999A)";
+        if (form.gstinNo && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.gstinNo)) newErrors.gstinNo = "GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
+        if (form.consignorGSTIN && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.consignorGSTIN)) newErrors.consignorGSTIN = "Consignor GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
+        // if (form.consigneeGSTIN && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.consigneeGSTIN)) newErrors.consigneeGSTIN = "Consignee GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
+        if (form.gstNo && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.gstNo)) newErrors.gstNo = "GST No must be 15 characters (e.g., 22AAAAA9999A1Z5)";
 
-            if (form.panNo && !/^[A-Z]{5}\d{4}[A-Z]{1}$/.test(form.panNo)) newErrors.panNo = "PAN No must be 10 characters (e.g., AAAAA9999A)";
-            if (form.gstinNo && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.gstinNo)) newErrors.gstinNo = "GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
-            if (form.consignorGSTIN && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.consignorGSTIN)) newErrors.consignorGSTIN = "Consignor GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
-            if (form.consigneeGSTIN && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.consigneeGSTIN)) newErrors.consigneeGSTIN = "Consignee GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
-            if (form.gstNo && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.gstNo)) newErrors.gstNo = "GST No must be 15 characters (e.g., 22AAAAA9999A1Z5)";
-
-            if (form.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(form.ifscCode)) newErrors.ifscCode = "IFSC Code must be 11 characters (e.g., HDFC0000001)";
-            
-            if (form.partys && (isNaN(form.partys) || Number(form.partys) <= 0)) newErrors.partys = "partys must be a positive number";
-            if (form.weight && (isNaN(form.weight) || Number(form.weight) < 0)) newErrors.weight = "Weight must be a non-negative number";
-            if (form.actualCharge && (isNaN(form.actualCharge) || Number(form.actualCharge) < 0)) newErrors.actualCharge = "Actual Charge must be a non-negative number";
-            if (form.biltyCharges && (isNaN(form.biltyCharges) || Number(form.biltyCharges) < 0)) newErrors.biltyCharges = "Bilty Charges must be a non-negative number";
-            if (form.amount && (isNaN(form.amount) || Number(form.amount) < 0)) newErrors.amount = "Amount must be a non-negative number";
-            if (form.total && (isNaN(form.total) || Number(form.total) < 0)) newErrors.total = "Total must be a non-negative number";
-            if (!form.selectedPartyId) newErrors.selectedPartyId = "Party selection is required";
-        } else if (view === 'lr') {
-            if (!form.truckNo) newErrors.truckNo = "Truck No is required";
-            else if (!/^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$/.test(form.truckNo)) newErrors.truckNo = "Truck No must be in format XX12XX1234 (e.g., MH12AB1234)";
-
-            if (!form.from) newErrors.from = "From is required";
-            if (!form.to) newErrors.to = "To is required";
-            if (!form.consignorName) newErrors.consignorName = "Consignor Name is required";
-            if (!form.consigneeName) newErrors.consigneeName = "Consignee Name is required";
-            if (!form.partys) newErrors.partys = "Partys is required";
-            if (!form.description) newErrors.description = "Description is required";
-            if (!form.date) newErrors.date = "Date is required";
-            else if (!/^\d{4}-\d{2}-\d{2}$/.test(form.date)) newErrors.date = "Date must be in YYYY-MM-DD format";
-
-            const numericFields = ['weight', 'rate', 'totalFreight', 'valueOfGoods', 'grossWeight', 'tareWeight', 'netWeight', 'biltyCharge', 'hamali', 'lessAdvance', 'grandTotal'];
-            numericFields.forEach(field => {
-                if (form[field] && (isNaN(form[field]) || Number(form[field]) < 0)) {
-                    newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} must be a non-negative number`;
-                }
-            });
-
-            if (form.consignorGSTIN && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.consignorGSTIN)) {
-                newErrors.consignorGSTIN = "Consignor GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
-            }
-
-            if (form.consigneeGSTIN && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.consigneeGSTIN)) {
-                newErrors.consigneeGSTIN = "Consignee GSTIN must be 15 characters (e.g., 22AAAAA9999A1Z5)";
-            }
-        } else {
-            if (!form.bankName) newErrors.bankName = "Bank Name is required";
-            if (!form.panNumber) newErrors.panNumber = "PAN Number is required";
-            else if (!/^[A-Z]{5}\d{4}[A-Z]{1}$/.test(form.panNumber)) newErrors.panNumber = "PAN must be 10 characters (e.g., AAAAA9999A)";
-            if (!form.partyName) newErrors.partyName = "Party Name is required";
-            if (form.amount && (isNaN(form.amount) || Number(form.amount) <= 0)) newErrors.amount = "Amount must be a positive number";
-            if (form.gstNumber && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(form.gstNumber)) newErrors.gstNumber = "GST Number must be 15 characters (e.g., 22AAAAA9999A1Z5)";
-            if (form.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(form.ifscCode)) newErrors.ifscCode = "IFSC Code must be 11 characters (e.g., HDFC0000001)";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+        if (form.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(form.ifscCode)) newErrors.ifscCode = "IFSC Code must be 11 characters (e.g., HDFC0000001)";
+        
+        if (form.partys && (isNaN(form.partys) || Number(form.partys) <= 0)) newErrors.partys = "Partys must be a positive number";
+        if (form.weight && (isNaN(form.weight) || Number(form.weight) < 0)) newErrors.weight = "Weight must be a non-negative number";
+        if (form.actualCharge && (isNaN(form.actualCharge) || Number(form.actualCharge) < 0)) newErrors.actualCharge = "Actual Charge must be a non-negative number";
+        if (form.biltyCharges && (isNaN(form.biltyCharges) || Number(form.biltyCharges) < 0)) newErrors.biltyCharges = "Bilty Charges must be a non-negative number";
+        if (form.amount && (isNaN(form.amount) || Number(form.amount) < 0)) newErrors.amount = "Amount must be a non-negative number";
+        if (form.total && (isNaN(form.total) || Number(form.total) < 0)) newErrors.total = "Total must be a non-negative number";
+        if (!form.selectedPartyId) newErrors.selectedPartyId = "Party selection is required";
+        if (!form.selectedLrId) newErrors.selectedLrId = "LR selection is required";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+};
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
-        if (name === 'selectedPartyId' && value) {
-            const selectedParty = partyRows.find(party => party._id === value);
-            if (selectedParty) {
-                setForm(prev => ({
-                    ...prev,
-                    bankName: selectedParty.bankName || '',
-                    gstNo: selectedParty.gstNumber || '',
-                    description: selectedParty.description || '',
-                    panNo: selectedParty.panNumber || '',
-                    accountNo: selectedParty.accountNo || '',
-                    ifscCode: selectedParty.ifscCode || '',
-                    branch: selectedParty.branch || ''
-                }));
-            }
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (name === 'selectedPartyId' && value) {
+        const selectedParty = partyRows.find(party => party._id === value);
+        if (selectedParty) {
+            setForm(prev => ({
+                ...prev,
+                bankName: selectedParty.bankName || '',
+                gstNo: selectedParty.gstNumber || '',
+                description: selectedParty.description || '',
+                panNo: selectedParty.panNumber || '',
+                accountNo: selectedParty.accountNo || '',
+                ifscCode: selectedParty.ifscCode || '',
+                branch: selectedParty.branch || ''
+            }));
         }
-        setErrors(prev => ({ ...prev, [name]: '' }));
-    };
+    } else if (name === 'selectedLrId' && value) {
+        const selectedLr = lrRows.find(lr => lr._id === value);
+        if (selectedLr) {
+            setForm(prev => ({
+                ...prev,
+                lrNo: selectedLr.lrNo || ''
+            }));
+        }
+    }
+    setErrors(prev => ({ ...prev, [name]: '' }));
+};
 
     const handleSave = async () => {
         if (!validateForm()) return;
@@ -791,18 +839,17 @@ const Home = () => {
                                         <IconButton
                                             size="small"
                                             onClick={() => handleEdit(row, type)}
-                                            sx={{
-                                                color: '#1e40af',
-                                                '&:hover': {
-                                                    color: '#3b82f6',
-                                                    backgroundColor: 'rgba(59, 130, 246, 0.08)',
-                                                },
-                                                '&:focus': {
-                                                    outline: '2px solid #1e40af',
-                                                    outlineOffset: '2px',
-                                                },
-                                                marginRight: '4px',
-                                            }}
+                                            // ✅ REPLACE TextField sx prop
+sx={{
+    '& .MuiOutlinedInput-root': {
+        borderRadius: '8px',
+        backgroundColor: '#ffffff',
+        '&.Mui-disabled': {  // ✅ ADD THIS
+            backgroundColor: '#f9fafb',
+            WebkitTextFillColor: '#6b7280',
+        }
+    },
+}}
                                         >
                                             <EditIcon fontSize="small" />
                                         </IconButton>
@@ -856,6 +903,231 @@ const Home = () => {
 };
 
 const renderPrintRecord = (record, type) => {
+    if (type === 'party') {
+        return (
+            <Box key={record._id} className="bill-container">
+                <Box className="print-header">
+                    <div className="header-top-line">
+                        ॥ श्री गणेशाय नमः ॥
+                    </div>
+                    <div className="header-main-grid">
+                        <div className="logo-section">
+                            <img src={ganesh} alt="Ganpati God Logo" width="100" height="100" />
+                            <div className="logo-text-block">
+                                <span className="logo-main-text">ANGAD</span>
+                                <span className="logo-sub-text">FREIGHT</span>
+                                <span className="logo-main-text">CARRIERS</span>
+                            </div>
+                        </div>
+                        <div className="company-details-section">
+                            <div className="company-name">SHRI VINAYAK ROADWAYS</div>
+                            <div className="company-tagline"><h4>CARGO MOVERS & TRANSPORT CONTRACTOR & FLEET OWNER</h4></div>
+                            <div className="company-address">1, Ashirwad Estate, Near Umiya Kanta, Aslali By Pass Road, Aslali, Ahmedabad-382427</div>
+                            <div className="company-contact">E-mail: <b>Svraslali@gmail.com</b></div>
+ <div className="contact-row">
+    <div className="company-contact">Mobile: <b>9898147837</b></div>
+    <div className="company-contact">UIP ID: <b>8320539296</b></div>
+  </div>
+
+                        </div>
+                        <div className="bill-info-section">
+                            <div className="info-cell party-name-cell">Party Name :</div>
+                            <div className="info-cell data-cell">{record.partyName || '-'}</div>
+                            <div className="info-cell date-cell">Date :</div>
+                            <div className="info-cell data-cell">{new Date(record.createdAt).toLocaleDateString('en-CA') || '-'}</div>
+                            <div className="info-cell static-cell">PAN NO: 24AFKPB7580D1ZN</div>
+                            <div className="info-cell static-cell">GST NO: AFKPB7580D</div>
+                        </div>
+                    </div>
+                </Box>
+                <div className="party-details-section">
+                    <div className="party-block">
+                        <div className="party-header">Party Details :</div>
+                        <div className="party-details">
+                            <div><strong>Bank Name:</strong> {record.bankName || '-'}</div>
+                            <div><strong>PAN Number:</strong> {record.panNumber || '-'}</div>
+                            <div><strong>GST Number:</strong> {record.gstNumber || '-'}</div>
+                            <div><strong>Description:</strong> {record.description || '-'}</div>
+                            <div><strong>Account No:</strong> {record.accountNo || '-'}</div>
+                            <div><strong>IFSC Code:</strong> {record.ifscCode || '-'}</div>
+                            <div><strong>Branch:</strong> {record.branch || '-'}</div>
+                            <div><strong>Created By:</strong> {record.createdBy || '-'}</div>
+                        </div>
+                    </div>
+                </div>
+                <div className="final-footer">
+                    <div className="disclaimer-box">
+                        Party details provided are for record purposes only. SHRI VINAYAK ROADWAYS is not responsible for any discrepancies in the provided information. All financial transactions are subject to verification.
+                    </div>
+                    <div className="jurisdiction-line">
+                        <span className="jurisdiction-text">Subject To Vapi Jurisdiction</span>
+                        <span className="jurisdiction-text">For SHRI VINAYAK ROADWAYS</span>
+                    </div>
+                </div>
+            </Box>
+        );
+    }
+
+    const printDate = record.consignmentDate || record.date || new Date().toLocaleDateString('en-CA');
+    const isBill = type === 'bill';
+
+    return (
+        <Box key={record._id} className="bill-container">
+            <Box className="print-header">
+                <div className="header-top-line">
+                    ॥ श्री गणेशाय नमः ॥
+                </div>
+                <div className="header-main-grid">
+                    <div className="logo-section">
+                        <img src={ganesh} alt="Ganpati God Logo" width="100" height="100" />
+                    </div>
+                    <div className="company-details-section">
+                        <div className="company-name">SHRI VINAYAK ROADWAYS</div>
+                        <div className="company-tagline"><h4>CARGO MOVERS & TRANSPORT CONTRACTOR & FLEET OWNER</h4></div>
+                        <div className="company-address">1, Ashirwad Estate, Near Umiya Kanta, Aslali By Pass Road, Aslali, Ahmedabad-382427</div>
+                        <div className="company-contact">E-mail: <b>Svraslali@gmail.com</b></div>
+ <div className="contact-row">
+    <div className="company-contact">Mobile: <b>9898147837</b></div>
+    <div className="company-contact">UIP ID: <b>8320539296</b></div>
+  </div>
+                    </div>
+                    <div className="bill-info-section">
+                        <div className="info-cell lr-no-cell">Bill.No. :</div>
+                        <div className="info-cell data-cell">{record.billNo || '-'}</div>
+                        <div className="info-cell truck-no-cell">Truck No. :</div>
+                        <div className="info-cell data-cell">{record.truckNo || '-'}</div>
+                        <div className="info-cell date-cell">Date :</div>
+                        <div className="info-cell data-cell">{new Date().toLocaleDateString()}</div>
+                        <div className="info-cell static-cell">PAN NO: 24AFKPB7580D1ZN</div>
+                        <div className="info-cell static-cell">GST NO: AFKPB7580D</div>
+                    </div>
+                </div>
+            </Box>
+            <div className="consignor-consignee-section">
+                <div className="consignor-block">
+                    <div className="consignor-header"> Name & Address :</div>
+                    <div className="consignor-details">
+                        <div>Name:  {record.consignorName || '-'}</div>
+                        <div>Address: {record.consignorAddress || '-'}</div>
+                    </div>
+                    <div className="gst-no"><b>GST No. : {record.consignorGSTIN || record.gstNo || '-'}</b></div>
+                </div>
+                <div className="mid-info-block">
+                    <div className="location-info">
+                        <div className="location-name">{record.from || '-'}</div>
+                        <div className="location-divider"></div>
+                        <div className="location-label">TO</div>
+                    </div>
+                    <div className="location-info">
+                        <div className="location-name">{record.to || '-'}</div>
+                        <div className="location-divider"></div>
+                        {/* <div className="location-label">To</div> */}
+                    </div>
+                </div>
+                {/* <div className="consignee-block">
+                    <div className="consignee-header">Consignee's Name & Address :</div>
+                    <div className="consignee-details">
+                        <div>{record.consigneeName || '-'}</div>
+                        <div>{record.consigneeAddress || '-'}</div>
+                    </div>
+                    <div className="gst-no">GST No. : {record.consigneeGSTIN || record.gstNo || '-'}</div>
+                </div> */}
+            </div>
+            <table className="goods-table">
+                <thead>
+                    <tr>
+                        <th className="no-articles-col">Bill Date</th>
+                        <th className="description-col">Natural of Goods Said to Contain</th>
+                        <th className="weight-col">Ch. No.</th>
+                        <th className="rate-col">L.R. No.</th>
+                         <th className="rate-col">Truck No.</th>
+                        <th className="total-freight-col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td className="no-articles-col">
+<div style={{ minHeight: '40px', display: 'flex', alignItems: 'center' }}>
+  {new Date(record.createdAt || new Date()).toLocaleDateString('en-GB')}
+</div>                        </td>
+                        <td className="description-col">
+                            <div style={{ minHeight: '40px', display: 'flex', alignItems: 'center' }}>{record.description || '-'}</div>
+                        </td>
+                        <td className="weight-col">
+                            <div style={{ minHeight: '40px', display: 'flex', alignItems: 'center' }}>{record.chNo|| '0.00'}</div>
+                        </td>
+                        <td className="rate-col">
+                            <div style={{ minHeight: '40px', display: 'flex', alignItems: 'center' }}>{record.lrNo || '-'}</div>
+                        </td>
+                         <td className="rate-col">
+                            <div style={{ minHeight: '40px', display: 'flex', alignItems: 'center' }}>{record.truckNo || '-'}</div>
+                        </td>
+                        <td className="total-freight-col">
+                            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '3px' }}>
+                                {record.total| '0.00'}
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div className="charges-footer-grid">
+                <div className="left-charges-block">
+                    <div className="charge-row">
+                        <span className="charge-label">IGST/CGST:</span>
+                        <span className="charge-data" style={{marginLeft:"200px;"}}>{record.IGSTCGST || '-'}</span>
+                    </div>
+                    
+                    
+                </div>
+                <div className="mid-charges-block">
+                    <div className="charge-row">
+                        <span className="charge-label">SGST:</span>
+                        <span className="charge-data">{record.SGST || '0.00'}</span>
+                    </div>
+                    
+                </div>
+                <div className="right-charges-block">
+                    <div className="charge-row">
+                        <span className="charge-label">Total:</span>
+                        <span className="charge-data">{record.grandTotal || 0}</span>
+                    </div>
+                </div>
+            </div>
+            <div className="disclaimer-box">
+                 <span className="charge-label">Rupees:</span>
+                <span className="charge-data">{numberToWords(record.grandTotal)}</span>
+                 </div>
+            <div className="final-footer">
+                
+                <div className="jurisdiction-line">
+                
+                <div className="footer">
+                    <div className="charge-ro">
+                        <span className="charge-labe">bank Name:</span>
+                        <span className="charge-data">{record.bankName || '-'}</span>
+                    </div>
+                    <div className="charge-ro">
+                        <span className="charge-labe">A.c. No:</span>
+                        <span className="charge-data">{record.bankAcNo || '0.00'}</span>
+                    </div>
+                    <div className="charge-ro">
+                        <span className="charge-labe">IFSC Code:</span>
+                        <span className="charge-data">{record.ifscCode || 0}</span>
+                    </div>               
+                    
+                </div>                
+              
+                
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '-45px',marginLeft: '270px' }}>
+                        <img src={sign} alt="Signature" style={{ width: '120px', height: '80px', marginBottom: '10px' }} />
+                        <span className="jurisdiction-text">For SHRI VINAYAK ROADWAYS</span>
+                    </div>
+                </div>
+            </div>
+        </Box>
+    );
+};
+const renderPrintRecordofLR = (record, type) => {
     if (type === 'party') {
         return (
             <Box key={record._id} className="bill-container">
@@ -936,45 +1208,46 @@ const renderPrintRecord = (record, type) => {
                         <div className="company-contact">E-mail: Svraslali@gmail.com</div>
                     </div>
                     <div className="bill-info-section">
+                         <div className="info-cell static-cell">PAN NO: 24AFKPB7580D1ZN</div>
+                        <div className="info-cell static-cell">GST NO: AFKPB7580D</div>
                         <div className="info-cell lr-no-cell">L.R.No. :</div>
                         <div className="info-cell data-cell">{record.lrNo || '-'}</div>
                         <div className="info-cell truck-no-cell">Truck No. :</div>
                         <div className="info-cell data-cell">{record.truckNo || '-'}</div>
                         <div className="info-cell date-cell">Date :</div>
                         <div className="info-cell data-cell">{printDate}</div>
-                        <div className="info-cell static-cell">PAN NO: 24AFKPB7580D1ZN</div>
-                        <div className="info-cell static-cell">GST NO: AFKPB7580D</div>
+                       
                     </div>
                 </div>
             </Box>
-            <div className="consignor-consignee-section">
-                <div className="consignor-block">
-                    <div className="consignor-header">Consignor's Name & Address :</div>
-                    <div className="consignor-details">
+            <div className="consignor-consignee-section-LR">
+                <div className="consignor-block-LR">
+                    <div className="consignor-header-LR">Consignor's Name & Address :</div>
+                    <div className="consignor-details-LR">
                         <div>{record.consignorName || '-'}</div>
                         <div>{record.consignorAddress || '-'}</div>
                     </div>
-                    <div className="gst-no">GST No. : {record.consignorGSTIN || record.gstNo || '-'}</div>
+                    <div className="gst-no-LR">GST No. : {record.consignorGSTIN || record.gstNo || '-'}</div>
                 </div>
-                <div className="mid-info-block">
-                    <div className="location-info">
-                        <div className="location-name">{record.from || '-'}</div>
-                        <div className="location-divider"></div>
-                        <div className="location-label">FROM</div>
+                <div className="mid-info-block-LR">
+                    <div className="location-info-LR">
+                        <div className="location-name-LR">{record.from || '-'}</div>
+                        <div className="location-divider-LR"></div>
+                        <div className="location-label-LR">FROM</div>
                     </div>
-                    <div className="location-info">
-                        <div className="location-name">{record.to || '-'}</div>
-                        <div className="location-divider"></div>
-                        <div className="location-label">To</div>
+                    <div className="location-info-LR">
+                        <div className="location-name-LR">{record.to || '-'}</div>
+                        <div className="location-divider-LR"></div>
+                        <div className="location-label-LR">To</div>
                     </div>
                 </div>
-                <div className="consignee-block">
-                    <div className="consignee-header">Consignee's Name & Address :</div>
-                    <div className="consignee-details">
+                <div className="consignee-block-LR">
+                    <div className="consignee-header-LR">Consignee's Name & Address :</div>
+                    <div className="consignee-details-LR">
                         <div>{record.consigneeName || '-'}</div>
                         <div>{record.consigneeAddress || '-'}</div>
                     </div>
-                    <div className="gst-no">GST No. : {record.consigneeGSTIN || record.gstNo || '-'}</div>
+                    <div className="gst-no-LR">GST No. : {record.consigneeGSTIN || record.gstNo || '-'}</div>
                 </div>
             </div>
             <table className="goods-table">
@@ -1059,12 +1332,27 @@ const renderPrintRecord = (record, type) => {
                 </div>
             </div>
             <div className="final-footer">
+                
                 <div className="disclaimer-box">
                     Above Consignment is taken at the risk of consignor and consignee. We are only broker between truck Owner Driver and Proprietors of the consignment. Due to mistake of a driver or due to any or their truck if any accident and goods are damaged, SHRI VINAYAK ROADWAYS is not responsible, Insurance of the goods is to be taken by the consignor SHRI VINAYAK ROADWAYS is not responsible for the payment made on the receipt. Responsibility of leakage is on Consignor and Consignee Only.
                 </div>
                 <div className="jurisdiction-line">
+                <div className="footers">
+                    <div className="charge-ro">
+                        <span className="charge-labe">bank Name:</span>
+                        <span className="charge-data">{record.bankName || '-'}</span>
+                    </div>
+                    <div className="charge-ro">
+                        <span className="charge-labe">A.c. No:</span>
+                        <span className="charge-data">{record.bankAcNo || '0.00'}</span>
+                    </div>
+                    <div className="charge-ro">
+                        <span className="charge-labe">IFSC Code:</span>
+                        <span className="charge-data">{record.ifscCode || 0}</span>
+                    </div>               
                     
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '-30px',marginLeft: '570px' }}>
+                </div> 
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '-30px',marginLeft: '370px' }}>
                         <img src={sign} alt="Signature" style={{ width: '120px', height: '80px', marginBottom: '10px' }} />
                         <span className="jurisdiction-text">For SHRI VINAYAK ROADWAYS</span>
                     </div>
@@ -1098,6 +1386,64 @@ return (
                 background-color: #ffffff;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             }
+                .contact-row {
+  display: flex;
+  justify-content: space-between; /* places items on same line with space between */
+  align-items: center;
+  margin-top: 4px;
+}
+
+/* Optional spacing between contact info */
+.contact-row .company-contact {
+  margin-right: 20px;
+}
+  .consignor-consignee-section-LR {
+                display: grid;
+                grid-template-columns: 2fr 1fr 2fr;
+                border: 1px solid #000;
+                border-bottom: none;
+                font-size: 10pt;
+              }
+              .consignor-block-LR, .consignee-block-LR {
+                border-right: 1px solid #000;
+                padding: 5px;
+              }
+              .consignee-block-LR {
+                border-right: none;
+              }
+              .consignor-header-LR, .consignee-header-LR, .party-header-LR {
+                font-weight: bold;
+                text-decoration: underline;
+                margin-bottom: 5px;
+              }
+              .gst-no-LR {
+                margin-top: 5px;
+                font-style: italic;
+              }
+              .mid-info-block-LR {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                border-right: 1px solid #000;
+              }
+              .location-info-LR {
+                text-align: center;
+                margin: 5px 0;
+              }
+              .location-name-LR {
+                font-weight: bold;
+                font-size: 12pt;
+              }
+              .location-divider-LR {
+                height: 1px;
+                background-color: #000;
+                margin: 2px 0;
+              }
+              .location-label-LR {
+                font-size: 8pt;
+                font-weight: bold;
+              }
             .form-section-title {
                 font-size: 1.25rem;
                 font-weight: 500;
@@ -1275,6 +1621,7 @@ return (
               }
               .consignor-consignee-section {
                 display: grid;
+                
                 grid-template-columns: 2fr 1fr 2fr;
                 border: 1px solid #000;
                 border-bottom: none;
@@ -1282,6 +1629,7 @@ return (
               }
               .consignor-block, .consignee-block {
                 border-right: 1px solid #000;
+                width: 500px;
                 padding: 5px;
               }
               .consignee-block {
@@ -1295,11 +1643,13 @@ return (
               .gst-no {
                 margin-top: 5px;
                 font-style: italic;
+                margin-top: 20px;
               }
               .mid-info-block {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                width: 200px;
                 justify-content: center;
                 border-right: 1px solid #000;
               }
@@ -1318,6 +1668,8 @@ return (
               }
               .location-label {
                 font-size: 8pt;
+                margin-top: 20px;
+                margin-bottom: 20px;
                 font-weight: bold;
               }
               .goods-table {
@@ -1343,13 +1695,28 @@ return (
                 padding: 5px;
                 margin-bottom: 5px;
               }
+                .footer{
+                width:300px;
+                color: black;
+                font-weight: 500;
+                font-size:15px;
+                margin-left:-60px;
+                margin-top:-20px;
+                }
+                 .footers{
+                width:300px;
+                color: black;
+                font-weight: 500;
+                font-size:15px;
+                
+                }
               .left-charges-block, .mid-charges-block, .right-charges-block {
                 display: flex;
                 flex-direction: column;
               }
               .charge-row {
                 display: flex;
-                justify-content: space-between;
+                
                 padding: 2px;
               }
               .charge-label { font-weight: bold; }
@@ -1368,7 +1735,7 @@ return (
                 justify-content: space-between;
                 font-weight: bold;
                 text-align: center;
-                margin-top:60px;
+                margin-top:40px;
               }
               .party-details-section {
                 border: 1px solid #000;
@@ -1644,134 +2011,107 @@ return (
                     {editingId ? `Edit ${view === 'bill' ? 'Bill' : view === 'lr' ? 'LR' : 'Party'}` : `Add New ${view === 'bill' ? 'Bill' : view === 'lr' ? 'LR' : 'Party'}`}
                 </DialogTitle>
                <DialogContent
-                    sx={{
-                    padding: { xs: '16px', sm: '24px' },
-                    backgroundColor: '#f8fafc',
-                    }}
-                >
+    sx={{
+        padding: { xs: '16px', sm: '24px' },
+        backgroundColor: '#f8fafc',
+    }}
+>
+    <Box
+        component="form"
+        sx={{
+            mt: 2,
+        }}
+        className="form-container"
+    >
+        <Grid container spacing={2}>
+            {(view === 'bill' ? billFormFields : view === 'lr' ? lrFormFields : partyFormFields).map(section => (
+                <Grid item xs={12} key={section.section}>
                     <Box
-                    component="form"
-                    sx={{
-                        mt: 2,
-                    }}
-                    className="form-container"
+                        className="form-section-grid"
+                        sx={{
+                            backgroundColor: '#ffffff',
+                            borderRadius: '8px',
+                            border: '1px solid #d1d5db',
+                            padding: { xs: '12px', sm: '16px' },
+                        }}
                     >
-                    <Grid container spacing={2}>
-                        {(view === 'bill' ? billFormFields : view === 'lr' ? lrFormFields : partyFormFields).map(section => (
-                        <Grid item xs={12} key={section.section}>
-                            <Box
-                            className="form-section-grid"
+                        <Typography
+                            className="form-section-title"
                             sx={{
-                                backgroundColor: '#ffffff',
-                                borderRadius: '8px',
-                                border: '1px solid #d1d5db',
-                                padding: { xs: '12px', sm: '16px' },
-                                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)',
-                            }}
-                            >
-                            <Typography
-                                variant="h6"
-                                className="form-section-title"
-                                sx={{
                                 fontFamily: '"Roboto", sans-serif',
                                 fontWeight: 500,
                                 fontSize: { xs: '1rem', sm: '1.25rem' },
-                                color: '#1f2937',
+                                color: '#1a237e',
                                 mb: 1.5,
-                                pb: 1,
-                                borderBottom: '2px solid #10b981',
-                                }}
-                            >
-                                {section.section}
-                            </Typography>
-                            <Grid container spacing={2}>
-                                {section.fields.map(field => (
-                                <Grid item xs={12} sm={field.name === 'selectedPartyId' ? 12 : 6} key={field.name}>
+                            }}
+                        >
+                            {section.section}
+                        </Typography>
+                        <Grid container spacing={2}>
+                            {section.fields.map(field => (
+                                <Grid item xs={12} sm={6} md={4} key={field.name}>
                                     {field.type === 'select' ? (
-                                    <TextField
-                                        select
-                                        label={field.label}
-                                        name={field.name}
-                                        value={form[field.name] || ''}
-                                        onChange={handleChange}
-                                        fullWidth
-                                        required={field.required}
-                                        error={!!errors[field.name]}
-                                        helperText={errors[field.name]}
-                                        sx={{
-                                        width: '100%',
-                                        minWidth: { xs: '100%', sm: '400px' }, // Increased width for Select Party
-                                        '& .MuiInputBase-root': {
-                                            borderRadius: '8px',
-                                        },
-                                        '& .MuiInputLabel-root': {
-                                            color: '#616161',
-                                        },
-                                        '& .Mui-focused .MuiInputLabel-root': {
-                                            color: '#3f51b5',
-                                        },
-                                        '& .MuiOutlinedInput-root': {
-                                            '& fieldset': {
-                                            borderColor: '#bdbdbd',
-                                            },
-                                            '&:hover fieldset': {
-                                            borderColor: '#757575',
-                                            },
-                                            '&.Mui-focused fieldset': {
-                                            borderColor: '#3f51b5',
-                                            },
-                                        },
-                                        }}
-                                    >
-                                        {partyRows.map(party => (
-                                        <MenuItem key={party._id} value={party._id}>
-                                            {party.partyName}
-                                        </MenuItem>
-                                        ))}
-                                    </TextField>
+                                        <Select
+                                            name={field.name}
+                                            value={form[field.name] || ''}
+                                            onChange={handleChange}
+                                            displayEmpty
+                                            fullWidth
+                                            required={field.required}
+                                            error={!!errors[field.name]}
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: '8px',
+                                                    backgroundColor: '#ffffff',
+                                                },
+                                            }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                {field.label}
+                                            </MenuItem>
+                                            {field.name === 'selectedPartyId' ? (
+                                                partyRows.map(party => (
+                                                    <MenuItem key={party._id} value={party._id}>
+                                                        {party.partyName}
+                                                    </MenuItem>
+                                                ))
+                                            ) : field.name === 'selectedLrId' ? (
+                                                lrRows.map(lr => (
+                                                    <MenuItem key={lr._id} value={lr._id}>
+                                                        {lr.lrNo || 'No LR Number'}
+                                                    </MenuItem>
+                                                ))
+                                            ) : null}
+                                        </Select>
                                     ) : (
-                                    <TextField
-                                        label={field.label}
-                                        name={field.name}
-                                        value={form[field.name] || ''}
-                                        onChange={handleChange}
-                                        fullWidth
-                                        required={field.required}
-                                        error={!!errors[field.name]}
-                                        helperText={errors[field.name]}
-                                        sx={{
-                                        '& .MuiInputBase-root': {
-                                            borderRadius: '8px',
-                                        },
-                                        '& .MuiInputLabel-root': {
-                                            color: '#616161',
-                                        },
-                                        '& .Mui-focused .MuiInputLabel-root': {
-                                            color: '#3f51b5',
-                                        },
-                                        '& .MuiOutlinedInput-root': {
-                                            '& fieldset': {
-                                            borderColor: '#bdbdbd',
-                                            },
-                                            '&:hover fieldset': {
-                                            borderColor: '#757575',
-                                            },
-                                            '&.Mui-focused fieldset': {
-                                            borderColor: '#3f51b5',
-                                            },
-                                        },
-                                        }}
-                                    />
+                                        <TextField
+                                            fullWidth
+                                            label={field.label}
+                                            name={field.name}
+                                            value={form[field.name] || ''}
+                                            onChange={handleChange}
+                                            required={field.required}
+                                            error={!!errors[field.name]}
+                                            helperText={errors[field.name]}
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    borderRadius: '8px',
+                                                    backgroundColor: '#ffffff',
+                                                },
+                                            }}
+                                        />
                                     )}
                                 </Grid>
-                                ))}
-                            </Grid>
-                            </Box>
+                            ))}
                         </Grid>
-                        ))}
-                    </Grid>
                     </Box>
-                </DialogContent>
+                </Grid>
+            ))}
+        </Grid>
+    </Box>
+</DialogContent>
                 <DialogActions
                     sx={{
                     padding: { xs: '12px 16px', sm: '16px 24px' },
@@ -1995,15 +2335,30 @@ return (
             </DialogActions>
                     </Dialog>
 
-           <Box className="print-table" sx={{ position: 'absolute', top: '-9999px' }}>
-    {printMode === 'all' && (view === 'bill' ? billRows : view === 'lr' ? lrRows : partyRows).map(record => renderPrintRecord(record, view))}
-    {printMode === 'selected' && (view === 'bill'
-        ? billRows.filter(row => selectedBillRows.includes(String(row._id)))
-        : view === 'lr'
-            ? lrRows.filter(row => selectedLrRows.includes(String(row._id)))
-            : partyRows.filter(row => selectedpartyRows.includes(String(row._id)))
-    ).map(record => renderPrintRecord(record, view))}
+          <Box className="print-table" sx={{ position: 'absolute', top: '-9999px' }}>
+  {printMode === 'all' && (
+    view === 'bill'
+      ? billRows.map(record => renderPrintRecord(record, view))
+      : view === 'lr'
+        ? lrRows.map(record => renderPrintRecordofLR(record, view))
+        : partyRows.map(record => renderPrintRecord(record, view))
+  )}
+
+  {printMode === 'selected' && (
+    view === 'bill'
+      ? billRows
+          .filter(row => selectedBillRows.includes(String(row._id)))
+          .map(record => renderPrintRecord(record, view))
+      : view === 'lr'
+        ? lrRows
+            .filter(row => selectedLrRows.includes(String(row._id)))
+            .map(record => renderPrintRecordofLR(record, view))
+        : partyRows
+            .filter(row => selectedpartyRows.includes(String(row._id)))
+            .map(record => renderPrintRecord(record, view))
+  )}
 </Box>
+
         </>
     );
 };
