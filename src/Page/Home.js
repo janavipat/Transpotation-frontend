@@ -1104,15 +1104,15 @@ const renderPrintRecord = (record, type) => {
                 <div className="footer">
                     <div className="charge-ro">
                         <span className="charge-labe">bank Name:</span>
-                        <span className="charge-data">{record.bankName || '-'}</span>
+                        <span className="charge-data">{'ICICI' || '-'}</span>
                     </div>
                     <div className="charge-ro">
                         <span className="charge-labe">A.c. No:</span>
-                        <span className="charge-data">{record.bankAcNo || '0.00'}</span>
+                        <span className="charge-data">{624405039633 || '0.00'}</span>
                     </div>
                     <div className="charge-ro">
                         <span className="charge-labe">IFSC Code:</span>
-                        <span className="charge-data">{record.ifscCode || 0}</span>
+                        <span className="charge-data">{'ICICI0006244'} </span>
                     </div>               
                     
                 </div>                
@@ -1340,15 +1340,15 @@ const renderPrintRecordofLR = (record, type) => {
                 <div className="footers">
                     <div className="charge-ro">
                         <span className="charge-labe">bank Name:</span>
-                        <span className="charge-data">{record.bankName || '-'}</span>
+                        <span className="charge-data">{'ICICI' || '-'}</span>
                     </div>
                     <div className="charge-ro">
                         <span className="charge-labe">A.c. No:</span>
-                        <span className="charge-data">{record.bankAcNo || '0.00'}</span>
+                        <span className="charge-data">{624405039633 || '0.00'}</span>
                     </div>
                     <div className="charge-ro">
                         <span className="charge-labe">IFSC Code:</span>
-                        <span className="charge-data">{record.ifscCode || 0}</span>
+                        <span className="charge-data">{'ICICI0006244' || 0}</span>
                     </div>               
                     
                 </div> 
